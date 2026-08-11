@@ -1,1 +1,36 @@
-.github/workflows/main.yml
+name: Build Cinephoria APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Extract project
+        run: |
+          unzip -q Cinephoria-AndroidStudio-v1.zip -d cinephoria_project
+
+      - name: Build APK
+        working-directory: cinephoria_project/Cinephoria
+        run: |
+          gradle assembleDebug --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cinephoria-APK
+          path: cinephoria_project/Cinephoria/app/build/outputs/apk/debug/app-debug.apk
